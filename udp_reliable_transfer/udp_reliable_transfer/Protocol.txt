@@ -1,0 +1,40 @@
+Protocol.txt
+Author: Kristin Ottofy
+Author: Kendal Brown
+Date: March 25, 2012
+Program: udp_reliable_transfer
+
+
+					Protocol
+
+ * UrftClient simulates a UDP Client with reliable data transfer using a 
+ * stop-and-wait protocol. 
+ * 
+ * It works by sending the file name to the server first, then the data in the
+ * file. The "header" is a 4 byte array that contains an integer of the number
+ * of bytes read from the file. The file name header is 512 regardless. The max
+ * packet size is 512 bytes, so including a header, the most data from the file
+ * that can be sent at one time is 508 bytes. After UrftClient sends a packet
+ * to the server, it waits to receive an ACK. The ACKS are numbered using with
+ * 0 and 1 but are in the same form as the header. A timer (100 ms) is used to
+ * determine whether a packet is lost. If an ACK takes too long to be sent, 
+ * that packet will be considered lost. If a packet is lost, UrftClient will 
+ * resend the packet up to a maximum number of times until the program stops or
+ * the correct ACK is received.
+
+
+
+ * UrftServer simulates a UDP Server with reliable data transfer using a 
+ * stop-and-wait protocol. 
+ * 
+ * The server listens on a provided port until it receives a packet. Once 
+ * UrftServer receives a packet, the header will be trimmed (a 4 byte array of
+ * the length of bytes read from the file or 512 for the file name) and the 
+ * remaining data will be added to an ArrayList. UrftServer will stop listening
+ * when a packet is received with less than 508 bytes of read data (meaning
+ * the client reached the end of the file) or after a maximum number of seconds
+ * (15 seconds). UrftServer will send an ACK in the same form as the header 
+ * containing either a 0 or 1. If the same packet was received twice, UrftServer
+ * will return the original ack, and therefore handles packet loss. After
+ * UrftServer stops listening for packets, it will write the ArrayList of data
+ * to a file and exit.
